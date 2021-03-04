@@ -7,8 +7,12 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "core-js": "^3.9.1",
+    "element-ui": "^2.15.1",
+    "mint-ui": "^2.2.13",
     "vue": "^2.6.12",
+    "vue-infinite-scroll": "^2.0.2",
     "vue-router": "^3.5.1",
     "vuex": "^3.6.2"
   },
