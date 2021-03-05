@@ -9,6 +9,10 @@ import 'element-ui/lib/theme-chalk/index.css'
 import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import axios from 'axios'
+
+Vue.filter('setWH',(url , arg)=>{
+  return url.replace(/w\.h/,arg);
+});
 Vue.prototype.axios = axios
 Vue.use(ElementUI)
 Vue.use(MintUI)
