@@ -1,96 +1,73 @@
 <template>
   <div class="cinema_body">
     <ul>
-      <li>
+      <li v-for="data in cinemalist" :key="data.id">
         <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
+          <span>{{data.nm}}</span>
+          <span class="q" v-if="data.sellPrice!=''"><span class="price">{{data.sellPrice}}</span> 元起</span>
         </div>
         <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
+          <span>{{data.addr}}</span>
+          <span>{{data.distance}}</span>
         </div>
         <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
+          <div v-for="(val,key) in data.tag" v-if="val === 1 && key!='sell'" :key="key"  :class=" key | classCard ">{{key|formatCard}}</div>
+          <div v-if="data.tag.vipTag!=''">{{data.tag.vipTag}}</div>
+          <div class="bl" v-for="val in data.tag.hallType" v-if="val != ''" :key="val">{{val}}</div>
         </div>
       </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q"><span class="price">22.9</span> 元起</span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
+      
+      
+      
     </ul>
   </div>
 </template>
 <script>
 export default {
-
+    name:'Cilist',
+    data() {
+      return {
+        cinemalist:[]
+      }
+    },
+    mounted() {
+      this.axios.get('/ajax/cinemaList?cityId=1109').then((res)=>{
+        console.log(res)
+        var msg = res.statusText
+        if (msg === 'OK') {
+          this.cinemalist = res.data.cinemas
+        }
+      })
+    },
+    filters:{
+      formatCard(key){
+        var card = [
+          { key : 'allowRefund' , value : '改签' },
+          { key : 'endorse' , value : '退' },
+          { key : 'snack' , value : '小吃'}
+        ]
+        for(var i=0;i<card.length;i++){
+                if(card[i].key === key){
+                    return card[i].value;
+                }
+            }
+            return '';
+      },
+        classCard(key){
+            var card = [
+                { key : 'allowRefund' , value : 'bl' },
+                { key : 'endorse' , value : 'bl' },
+                { key : 'sell' , value : 'or' },
+                { key : 'snack' , value : 'or'}
+            ];
+            for(var i=0;i<card.length;i++){
+                if(card[i].key === key){
+                    return card[i].value;
+                }
+            }
+            return '';
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>
@@ -134,6 +111,8 @@ export default {
   border: 1px solid #f90;
   font-size: 13px;
   margin-right: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 .cinema_body .card div.or {
   color: #f90;
