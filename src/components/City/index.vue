@@ -1,106 +1,33 @@
 <template>
   <div class="city_body">
-    <!-- <div class="city_list">
-      <div class="city_hot">
-        <h2>热门城市</h2>
-        <ul class="clearfix">
-          <li>上海</li>
-          <li>北京</li>
-          <li>上海</li>
-          <li>北京</li>
-          <li>上海</li>
-          <li>北京</li>
-          <li>上海</li>
-          <li>北京</li>
-        </ul>
-      </div>
-      <div class="city_sort">
-        <div>
-          <h2 :index="data.index" v-for="data in data.index" :key="data.index">{{data.index}}</h2>
-          <ul>
-            <li>阿拉善盟</li>
-            <li>鞍山</li>
-            <li>安庆</li>
-            <li>安阳</li>
-          </ul>
-        </div>
-        <div>
-          <h2>B</h2>
-          <ul>
-            <li>北京</li>
-            <li>保定</li>
-            <li>蚌埠</li>
-            <li>包头</li>
-          </ul>
-        </div>
-        <div>
-          <h2>A</h2>
-          <ul>
-            <li>阿拉善盟</li>
-            <li>鞍山</li>
-            <li>安庆</li>
-            <li>安阳</li>
-          </ul>
-        </div>
-        <div>
-          <h2>B</h2>
-          <ul>
-            <li>北京</li>
-            <li>保定</li>
-            <li>蚌埠</li>
-            <li>包头</li>
-          </ul>
-        </div>
-        <div>
-          <h2>A</h2>
-          <ul>
-            <li>阿拉善盟</li>
-            <li>鞍山</li>
-            <li>安庆</li>
-            <li>安阳</li>
-          </ul>
-        </div>
-        <div>
-          <h2>B</h2>
-          <ul>
-            <li>北京</li>
-            <li>保定</li>
-            <li>蚌埠</li>
-            <li>包头</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="city_index">
-      <ul>
-        <li>A</li>
-        <li>B</li>
-        <li>C</li>
-        <li>D</li>
-        <li>E</li>
-      </ul>
-    </div> -->
+		
+    
     <div class="city_list">
-      <div class="city_hot">
-        <h2>热门城市</h2>
-        <ul class="clearfix">
-          <li v-for="data in hotlist" :key="data.cityId">{{data.name}}</li>
-        </ul>
+      <Loading v-if="isLoading" />
+      <Scroller v-else ref="city_List">
+        <div>
+          <div class="city_hot">
+            <h2>热门城市</h2>
+            <ul class="clearfix">
+              <li v-for="data in hotlist" :key="data.cityId" @click="handleToCity(data.name,data.cityId)">{{data.name}}</li>
+            </ul>
+          </div>
+          <div class="city_sort" ref="city_sort">
+            <div v-for="item in citylist" :key="item.index">
+              <h2>{{item.index}}</h2>
+              <ul>
+                <li v-for="city in item.list" :key="city.cityId" @click="handleToCity(city.name , city.cityId)">{{city.name}}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        </Scroller>
       </div>
-      <div class="city_sort" ref="city_sort">
-        <div v-for="item in citylist" :key="item.index">
-          <h2>{{item.index}}</h2>
+        <div class="city_index">
           <ul>
-            <li v-for="city in item.list" :key="city.cityId">{{city.name}}</li>
+            <li v-for="(item,index) in citylist" :key="item.index" @click="handleToindex(index)">{{item.index}}</li>
           </ul>
         </div>
-      </div>
-    </div>
-    <div class="city_index">
-      <ul>
-        <li v-for="(item,index) in citylist" :key="item.index" @touchstart="handleToindex(index)">{{item.index}}</li>
-      </ul>
-    </div>
   </div>
 </template>
 <script>
@@ -110,11 +37,20 @@ export default {
     data() {
       return {
         citylist:[],
-        hotlist:[]
+        hotlist:[],
+        isLoading : true,
       }
     },
     mounted() {
-      this.axios({
+      var citylist = window.localStorage.getItem('citylist');
+      var hotlist = window.localStorage.getItem('hotlist');
+      if(citylist && hotlist){
+            this.citylist = JSON.parse(citylist);
+            this.hotlist = JSON.parse(hotlist);
+            this.isLoading = false;
+      }
+      else{
+        this.axios({
             url:"https://m.maizuo.com/gateway?k=1577911",
             headers:{
                 'X-Client-Info': '{"a":"3000","ch":"1002","v":"5.0.4","e":"1613968414272562919571457","bc":"310100"}',
@@ -129,8 +65,13 @@ export default {
               var {citylist,hotlist} = this.formatCitylist(data)
               this.citylist = citylist
               this.hotlist = hotlist
+			        this.isLoading = false;
+              window.localStorage.setItem('citylist' , JSON.stringify(citylist));
+              window.localStorage.setItem('hotlist' , JSON.stringify(hotlist));
             }
         })
+      }
+      
     },
     methods: {
       formatCitylist(data){
@@ -161,7 +102,14 @@ export default {
       },
       handleToindex(index){
         var h2 = this.$refs.city_sort.getElementsByTagName('h2')
-        this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+        // this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+        this.$refs.city_List.toScrollTop(-h2[index].offsetTop);
+      },
+      handleToCity(name,cityId){
+            this.$store.commit('city/CITY_INFO',{ name , cityId });
+            window.localStorage.setItem('nowNm',name);
+            window.localStorage.setItem('nowId',cityId);
+            this.$router.push('/movie/nowplaying');
       }
     },
 };

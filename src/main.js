@@ -10,6 +10,12 @@ import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import axios from 'axios'
 
+import Scroller from '@/components/Scroller'
+Vue.component('Scroller' , Scroller);
+
+import Loading from '@/components/Loading'
+Vue.component('Loading',Loading);
+
 Vue.filter('setWH',(url , arg)=>{
   return url.replace(/w\.h/,arg);
 });

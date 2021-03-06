@@ -29,7 +29,8 @@ export default {
         return {
             message:"",
             movielist:[],
-            cinemalist:[]
+            cinemalist:[],
+            prevCityId : -1
         }
     },
     methods : {
@@ -42,9 +43,10 @@ export default {
     watch:{
         message(newVal){
             var that = this;
-            // var cityId = this.$store.state.city.id;
+            var cId = this.$store.state.city.cityId;
+            if( this.prevCityId === cId ){ return; }
             this.cancelRequest();
-            this.axios.get('/ajax/search?kw=' + newVal + '&cityId=1109&stype=-1',{
+            this.axios.get('/ajax/search?kw=' + newVal + '&cityId='+ cId +'&stype=-1',{
                 cancelToken: new this.axios.CancelToken(function(c){
                     that.source = c;
                     })
@@ -54,6 +56,7 @@ export default {
                 var movies = res.data.movies
                 if (msg && movies) {
                     this.movielist = res.data.movies.list
+                    this.prevCityId = cId;
                     // this.cinemalist = res.data.cinemas.list
                 }
             }).catch((err) => {

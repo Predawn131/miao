@@ -1,5 +1,6 @@
 <template>
     <div class="movie_body">
+		<Loading v-if="isLoading" />
 				<ul>
 					<!-- <li>
 						<div class="pic_show"><img src="/images/movie_1.jpg"></div>
@@ -52,22 +53,29 @@ export default {
 	data() {
 		return {
 			cominglist:[],
+            isLoading : true,
+			prevCityId : -1
 		}
 	},
-	mounted() {
+	activated() {
+		var cId = this.$store.state.city.cityId;
+        if( this.prevCityId === cId ){ return; }
+		this.isLoading = true;
 		this.axios({
-        url:'https://m.maizuo.com/gateway?cityId=310100&pageNum=1&pageSize=10&type=2&k=7703048',
+        url:'https://m.maizuo.com/gateway?cityId='+ cId +'&pageNum=1&pageSize=10&type=2&k=7703048',
         headers: {
           'X-Client-Info': '{"a":"3000","ch":"1002","v":"5.0.4","e":"1613968414272562919571457","bc":"310100"}',
           'X-Host': 'mall.film-ticket.film.list'
         }
       }).then(res => {
-        console.log(res.data.data)
+        // console.log(res.data.data)
 		var msg = res.data.msg
 		if (msg === 'ok') {
 			this.cominglist = res.data.data.films
+			this.isLoading = false;
+			this.prevCityId = cId;
 			
-		}console.log(this.cominglist.premiereAt)
+		}
       })
 	},
 }

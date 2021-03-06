@@ -4,7 +4,7 @@
         <div id="content">
 			<div class="movie_menu">
 				<router-link to="/movie/city" tag="div" class="city_name"> 
-					<span>大连</span><i class="iconfont icon-down"></i>
+					<span>{{ $store.state.city.name }}</span><i class="iconfont icon-down"></i>
 				</router-link>
 				<div class="hot_swtich">
 					<router-link to="/movie/nowplaying" tag="div" class="hot_item">正在热映</router-link>
@@ -24,13 +24,47 @@
 <script>
 import Header from '@/components/Header'
 import Tabbar from '@/components/Tabbar'
+import {messageBox} from '@/components/JS'
 
 export default {
     name:'Movie',
     components:{
         Header,
-        Tabbar
-    }
+        Tabbar,
+        
+    },
+    mounted() {
+        setTimeout(()=>{
+            this.axios({
+                url:'https://m.maizuo.com/gateway?k=6508120',
+                headers:{
+                    'X-Client-Info': '{"a":"3000","ch":"1002","v":"5.0.4","e":"16150007091036066370879489"}',
+                    'X-Host': 'mall.film-ticket.city.locate'
+                }    
+            }).then((res)=>{
+                // console.log(window.localStorage.getItem('cityId'))
+                var msg = res.data.msg;
+                if(msg === 'ok'){
+
+                    var name = res.data.data.city.name;
+                    var cityId = res.data.data.city.cityId;
+                    console.log(this.$store.state.city.cityId,cityId)
+                    if( this.$store.state.city.cityId == cityId ){return;}
+                    messageBox({
+                        title : '定位',
+                        content : name,
+                        cancel : '取消',
+                        ok : '切换定位',
+                        handleOk(){
+                            window.localStorage.setItem('nowNm',name);
+                            window.localStorage.setItem('nowId',cityId);
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
+        },3000);
+    },  
 }
 </script>
 <style lang="scss" scoped>

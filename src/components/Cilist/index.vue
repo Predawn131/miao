@@ -1,20 +1,17 @@
 <template>
   <div class="cinema_body">
+		<Loading v-if="isLoading" />
     <ul>
-      <li v-for="data in cinemalist" :key="data.id">
+      <li v-for="data in cinemalist" :key="data.cinemaId">
         <div>
-          <span>{{data.nm}}</span>
-          <span class="q" v-if="data.sellPrice!=''"><span class="price">{{data.sellPrice}}</span> 元起</span>
+          <span class="nm">{{data.name}}</span>
+          <span class="q" v-if="data.sellPrice!=''"><span class="price">{{data.lowPrice/100}}</span> 元起</span>
         </div>
         <div class="address">
-          <span>{{data.addr}}</span>
-          <span>{{data.distance}}</span>
+          <span>{{data.address}}</span>
+          <!-- <span>{{data.distance}}</span> -->
         </div>
-        <div class="card">
-          <div v-for="(val,key) in data.tag" v-if="val === 1 && key!='sell'" :key="key"  :class=" key | classCard ">{{key|formatCard}}</div>
-          <div v-if="data.tag.vipTag!=''">{{data.tag.vipTag}}</div>
-          <div class="bl" v-for="val in data.tag.hallType" v-if="val != ''" :key="val">{{val}}</div>
-        </div>
+        
       </li>
       
       
@@ -27,47 +24,32 @@ export default {
     name:'Cilist',
     data() {
       return {
-        cinemalist:[]
+        cinemalist:[],
+        isLoading : true,
+        prevCityId : -1
       }
     },
-    mounted() {
-      this.axios.get('/ajax/cinemaList?cityId=1109').then((res)=>{
+    activated() {
+      var cId = this.$store.state.city.cityId;
+        if( this.prevCityId === cId ){ return; }
+        // console.log(123)
+        this.isLoading = true;
+      this.axios({
+      url: 'https://m.maizuo.com/gateway?cityId='+ cId +'&ticketFlag=1&k=4023099',
+      headers: {
+        'X-Client-Info': '{"a":"3000","ch":"1002","v":"5.0.4","e":"1613968414272562919571457"}',
+        'X-Host': 'mall.film-ticket.cinema.list'
+      }
+    }).then((res)=>{
         console.log(res)
-        var msg = res.statusText
-        if (msg === 'OK') {
-          this.cinemalist = res.data.cinemas
+        var msg = res.data.msg
+        if (msg === 'ok') {
+          this.cinemalist = res.data.data.cinemas
+			  this.isLoading = false;
+        this.prevCityId = cId;
         }
       })
     },
-    filters:{
-      formatCard(key){
-        var card = [
-          { key : 'allowRefund' , value : '改签' },
-          { key : 'endorse' , value : '退' },
-          { key : 'snack' , value : '小吃'}
-        ]
-        for(var i=0;i<card.length;i++){
-                if(card[i].key === key){
-                    return card[i].value;
-                }
-            }
-            return '';
-      },
-        classCard(key){
-            var card = [
-                { key : 'allowRefund' , value : 'bl' },
-                { key : 'endorse' , value : 'bl' },
-                { key : 'sell' , value : 'or' },
-                { key : 'snack' , value : 'or'}
-            ];
-            for(var i=0;i<card.length;i++){
-                if(card[i].key === key){
-                    return card[i].value;
-                }
-            }
-            return '';
-        }
-    }
 };
 </script>
 <style lang="scss" scoped>
@@ -84,17 +66,31 @@ export default {
 }
 .cinema_body div {
   margin-bottom: 10px;
+  
 }
 .cinema_body .q {
   font-size: 11px;
   color: #f03d37;
+  float: right;
+  margin-top: -10px;
 }
 .cinema_body .price {
   font-size: 18px;
 }
+.nm{
+  display: block;
+  width: 200px;
+  overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .cinema_body .address {
   font-size: 13px;
   color: #666;
+  width: 200px;
+  overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .cinema_body .address span:nth-of-type(2) {
   float: right;
