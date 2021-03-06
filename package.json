@@ -12,6 +12,7 @@
     "core-js": "^3.9.1",
     "element-ui": "^2.15.1",
     "mint-ui": "^2.2.13",
+    "swiper": "^4.5.1",
     "vue": "^2.6.12",
     "vue-infinite-scroll": "^2.0.2",
     "vue-router": "^3.5.1",

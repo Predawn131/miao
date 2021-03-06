@@ -68,12 +68,12 @@ export default {
     },
     methods: {
 		handleChangePage (id) {
-      console.log(id)
+            console.log(id)
       // 编程式导航-路径跳转
       // this.$router.push(`/detail/${id}`)
 
       // 编程式导航-名字跳转
-    //   this.$router.push({ name: 'Detail', params: { id: id } })
+      this.$router.push('/movie/detail/1/' + id);
     },
         loadMore () {
             this.loading = true

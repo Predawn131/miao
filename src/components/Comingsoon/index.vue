@@ -14,7 +14,7 @@
 							预售
 						</div>
 					</li> -->
-					<li v-for="data in cominglist" :key="data.filmId">
+					<li v-for="data in cominglist" :key="data.filmId"  @click="handleChangePage(data.filmId)">
 						<div class="pic_show"><img :src="data.poster"></div>
 						<div class="info_list">
 							<span class="name">{{data.name}} </span>
@@ -77,6 +77,16 @@ export default {
 			
 		}
       })
+	},
+	methods: {
+		handleChangePage (id) {
+            console.log(id)
+      // 编程式导航-路径跳转
+      // this.$router.push(`/detail/${id}`)
+
+      // 编程式导航-名字跳转
+      this.$router.push('/movie/detail/2/' + id);
+    },
 	},
 }
 </script>
